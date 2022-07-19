@@ -105,6 +105,8 @@ def write_spack_yaml(parser, args):
 
     stack_yaml = args.input_path + '/' + args.source_file
     spack_yaml = 'spack.yaml'
+    packages_yaml = 'packages.yaml'
+    packages_yaml_template = 'packages.yaml.j2'
 
     # Process Programming Environment section.
     pe = ProgrammingEnvironment(stack_yaml, stack_yaml)
@@ -114,17 +116,28 @@ def write_spack_yaml(parser, args):
     pkgs = Packages(stack_yaml, stack_yaml)
     pkgs(section = 'packages')
 
-    # Get all data in a single dicttionary
+    # spack.yaml
+    # Get all data in a single dictionary
     data = deepcopy(pe.flat_stack)
     data['packages'] = pkgs.pkg_defs
     data['pkgs_pe'] = pkgs.pe
 
-    # Render and write template
+    # All of this will go in to a class/method
     file_loader = FileSystemLoader(args.templates_path)
     env = Environment(loader = file_loader, trim_blocks = True)
-    template = env.get_template(args.template_file)
 
+    # Render and write spack.yaml
+    template = env.get_template(args.template_file)
     output = template.render(stack = data)
     print(output)
     with open(spack_yaml, 'w') as f:
         f.write(output)
+
+    template = env.get_template(packages_yaml_template)
+    output = template.render(packages = pkgs.pkgs_yaml)
+    print(output)
+    with open(packages_yaml, 'w') as f:
+        f.write(output)
+
+#    test = ReadYaml()
+#    test.read('test.yaml')

@@ -17,18 +17,15 @@ class Packages(ReadYaml):
         # data
         self.data = {}
         self.stack = {}
-        self.specs = []
-        # not used
-        # self.filtered_stack = {}   # acctually not used
-        # self.flat_stack = {}       # acctually not used
-        # self._cursor = []          # acctually not used
+        # self.specs = [] not used ???
         # for jinja parsing
         self.pkg_defs = {}
+        self.pe = {}
+        # used to write packages.yaml
         self.pkgs_yaml = {}
         # options & replacements
         self.options = {}
         self.replacements = {}
-        self.pe = {}
 
     def __call__(self, section):
         """Populate class structs"""
@@ -58,6 +55,7 @@ class Packages(ReadYaml):
                     self.pkg_defs[list_name].append(spec)
 
         self.create_pe_dict()
+        self.create_packages_yaml()
 
     def create_pe_dict(self):
         """Create dictionary for parsing jinja template with the package list
@@ -67,6 +65,59 @@ class Packages(ReadYaml):
             self.pe[pkg_list] = { 'pe': self.stack[pkg_list]['pe'] }
             if 'dependencies' in self.stack[pkg_list]:
                 self.pe[pkg_list]['dependencies'] = self.stack[pkg_list]['dependencies']
+
+    def create_packages_yaml(self):
+        """Read self.stack dict and create self.pkgs_yaml
+
+        The self.pkgs_yaml dictionary will contain the data ready to
+        be used in the jinja template.
+
+        Minimum requirements for adding a package to packages.yaml:
+        - the package contains the default key;
+        - the package contains at least on of: (version or variants) or externals.
+
+        The default section is only an indicator. All the information will be
+        copied to packages.yaml. Only the options will be applied and eventually
+        a dependencies section.
+
+        This method will create a NEW DICTIONARY based on self.stack['default']
+        """
+
+        for list_name, list_pkgs in self.stack.items():
+            for pkg in list_pkgs['packages']:
+                if isinstance(pkg, dict):
+                    pkg_name = list(pkg.keys())[0]
+                    if 'default' in pkg[pkg_name]:
+                        default_specs = pkg[pkg_name]['default']
+                        specs = []
+                        # All of this below will go into a separate method
+                        # Check for option keys and select in accordance
+                        selected_specs = self.spec_select(self.options, default_specs)
+                        specs.append(selected_specs)
+                        # Check for dependencies
+                        # This will go into a separate method
+                        if 'dependencies' in default_specs:
+                            for d in default_specs.get('dependencies'):
+                                specs.append('^' + d.strip())
+                        # Add to variants if exists
+                        if 'variants' in default_specs:
+                            variants = specs.append(default_specs['variants'])
+                        else:
+                            variants = specs
+                        # At this moment, 'variants' could be an empty list
+                        # Finnaly add specs to dict
+                        #if not (list_name in self.pkgs_yaml):
+                        #    self.pkgs_yaml[list_name] = {pkg_name: {}}
+                        self.pkgs_yaml[pkg_name] = default_specs
+                        # Remove metadata
+                        # This will go into a seperate method
+                        if 'gpu' in self.pkgs_yaml[pkg_name]:
+                            self.pkgs_yaml[pkg_name].pop('gpu')
+                        if 'dependencies' in self.pkgs_yaml[pkg_name]:
+                            self.pkgs_yaml[pkg_name].pop('dependencies')
+                        if 'mpi' in self.pkgs_yaml[pkg_name]:
+                            self.pkgs_yaml[pkg_name].pop('mpi')
+
 
     def spec_from_def(self, pkg_def):
         """Return spec from definition schema found in stack.yaml

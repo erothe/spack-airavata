@@ -195,32 +195,32 @@ mpi_pkgs:
   - mpi
   # INSTALL THE FOLLOWING PACKAGES
   packages:
-#  - lmod                                                                     
-#  # ADD SPEC `fftw@3.3.8 +mpi+openmp` TO `mpi_pkgs` PACKAGE LIST             
-#  # WRITE THE SPEC IN `packages.yaml`
-#  # fftw:
-#  #   version: 3.3.8
-#  #   variants: +mpi+openmp
-#  - fftw:
-#      default:
-#        variants: +mpi+openmp
-#        version: 3.3.8
-#  - fftw ~mpi~openmp
-#  # ADD SPEC `hdf5 +szip+mpi+hl+fortran+cxx+cuda/~cuda` TO `mpi_pkgs` PACKAGE LIST
-#  # WRITE THE SPEC IN `packages.yaml`
-#  # hdf5:
-#  #   varaints: +szip+mpi+hl+fortran+cxx+cuda/~cuda
-#  - hdf5:
-#      default: 
-#        variants: +szip+mpi+hl+fortran+cxx
-#        gpu:
-#          nvidia: +cuda
-#          none: ~cuda
-#  - netcdf-c +mpi
-#  - netcdf-fortran
-#  - gpu:
-#      nvidia: +cuda
-#      none: ~cuda
+  - lmod                                                                     
+  # ADD SPEC `fftw@3.3.8 +mpi+openmp` TO `mpi_pkgs` PACKAGE LIST             
+  # WRITE THE SPEC IN `packages.yaml`
+  # fftw:
+  #   version: 3.3.8
+  #   variants: +mpi+openmp
+  - fftw:
+      default:
+        variants: +mpi+openmp
+        version: 3.3.8
+  - fftw ~mpi~openmp
+  # ADD SPEC `hdf5 +szip+mpi+hl+fortran+cxx+cuda/~cuda` TO `mpi_pkgs` PACKAGE LIST
+  # WRITE THE SPEC IN `packages.yaml`
+  # hdf5:
+  #   varaints: +szip+mpi+hl+fortran+cxx+cuda/~cuda
+  - hdf5:
+      default: 
+        variants: +szip+mpi+hl+fortran+cxx
+        gpu:
+          nvidia: +cuda
+          none: ~cuda
+  - netcdf-c +mpi
+  - netcdf-fortran
+  - gpu:
+      nvidia: +cuda
+      none: ~cuda
   # ADD SPEC `pkg +mpi+cuda/~cuda` TO `mpi_pkgs` PACKAGE LIST
   # DOES NOTHING IN `packages.yaml`
   - pkg:
